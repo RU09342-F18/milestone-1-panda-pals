@@ -111,6 +111,7 @@ unsigned char in_count = 0;
 unsigned char in_message_len = 0;
 unsigned char out_message_len = 0;
 unsigned char out_message[] = {};
+unsigned char err_flag = 0;
 #if defined(__TI_COMPILER_VERSION__) || defined(__IAR_SYSTEMS_ICC__)
 #pragma vector=USCIAB0RX_VECTOR
 __interrupt void USCI0RX_ISR(void)
@@ -121,36 +122,41 @@ void __attribute__ ((interrupt(USCIAB0RX_VECTOR))) USCI0RX_ISR (void)
 #endif
 {
     unsigned char data = UCA0RXBUF;
-    //send_bytes(&data, 1);
     if(in_message_len == 0){
         in_message_len = data;
+        out_message_len = in_message_len - 3;
+        out_message[0] = out_message_len;
         in_count = 0;
     }
-    else {
-        if(in_count == 1){
-            set_r_duty_cycle(data);
-        }
-        else if(in_count == 2){
-            set_g_duty_cycle(data);
-        }
-        else if(in_count == 3){
-            set_b_duty_cycle(data);
+    else if(in_count >= in_message_len - 1){
+        if(data == 0x0d){
+            out_message[out_message_len - 1] = 0x0d;
+            if(err_flag == 1)
+                err_flag = 0;
+            else
+                send_bytes(out_message, out_message_len);
+            in_message_len = 0;
+            out_message_len = 0;
         }
         else{
-            if(in_count >= in_message_len){
-                send_bytes(out_message, out_message_len);
-                in_message_len = 0;
-                out_message_len = 0;
-            }
-            if(in_count == 4){
-                out_message_len = data;
-            }
-            out_message[in_count - 4] = data;
+            err_flag = 1;
         }
-
+    }
+    else if(in_count == 1){
+        set_r_duty_cycle(data);
+    }
+    else if(in_count == 2){
+        set_g_duty_cycle(data);
+    }
+    else if(in_count == 3){
+        set_b_duty_cycle(data);
+    }
+    else{
+        out_message[in_count - 3] = data;
     }
 
-    in_count++;
-
-
+    //send_bytes(&out_message_len, 1);
+    if(err_flag != 0)
+        in_count++;
 }
+
