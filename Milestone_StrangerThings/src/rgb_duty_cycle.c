@@ -7,14 +7,16 @@
 #include <stdint.h>
 #include "rgb_duty_cycle.h"
 
-void setup_leds(){
+void setup_leds() {
+    P1SEL &= ~(RED_LED + BLUE_LED + GREEN_LED);
+    P1SEL2 &= ~(RED_LED + BLUE_LED + GREEN_LED);
     P1DIR |= (RED_LED + BLUE_LED + GREEN_LED);
 
     // start leds as turned off
     P1OUT &= ~(RED_LED + BLUE_LED + GREEN_LED);
 }
 
-void setup_timers(){
+void setup_timers() {
     BCSCTL3 = LFXT1S_2; // makes aclk use an internal 12kHz oscillator instead of external
 
     TA0CCTL0 = CCIE; //  CCR0 interrupt enabled
@@ -37,20 +39,20 @@ void setup_timers(){
     //    EX: TA0CCR0 = 512;
     //        TA0CCR1 = brightness*2
 
-    set_r_duty_cycle(100);
-    set_g_duty_cycle(10);
-    set_b_duty_cycle(100);
+    set_r_duty_cycle(0);
+    set_g_duty_cycle(0);
+    set_b_duty_cycle(0);
 }
 
-void set_r_duty_cycle(char brightness){
+void set_r_duty_cycle(char brightness) {
     TA0CCR1 = brightness;
 }
 
-void set_g_duty_cycle(char brightness){
+void set_g_duty_cycle(char brightness) {
     TA0CCR2 = brightness;
 }
 
-void set_b_duty_cycle(char brightness){
+void set_b_duty_cycle(char brightness) {
     TA1CCR0 = brightness;
 }
 

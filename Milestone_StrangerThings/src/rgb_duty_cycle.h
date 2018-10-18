@@ -6,7 +6,7 @@
 #define RGB_DUTY_CYCLE_H
 
 #define RED_LED     BIT3 // P1.3
-#define GREEN_LED   BIT6 // P1.6
+#define GREEN_LED   BIT4 // P1.6
 #define BLUE_LED    BIT5 // P1.5
 
 // sets rgb led pins to output

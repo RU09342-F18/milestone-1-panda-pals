@@ -122,14 +122,14 @@ void __attribute__ ((interrupt(USCIAB0RX_VECTOR))) USCI0RX_ISR (void)
 #endif
 {
     unsigned char data = UCA0RXBUF;
-    if(in_message_len == 0){
+    if(in_message_len == 0) {
         in_message_len = data;
         out_message_len = in_message_len - 3;
         out_message[0] = out_message_len;
         in_count = 0;
     }
-    else if(in_count >= in_message_len - 1){
-        if(data == 0x0d){
+    else if(in_count >= in_message_len - 1) {
+        if(data == 0x0d) {
             out_message[out_message_len - 1] = 0x0d;
             if(err_flag == 1)
                 err_flag = 0;
@@ -138,25 +138,25 @@ void __attribute__ ((interrupt(USCIAB0RX_VECTOR))) USCI0RX_ISR (void)
             in_message_len = 0;
             out_message_len = 0;
         }
-        else{
+        else {
             err_flag = 1;
         }
     }
-    else if(in_count == 1){
+    else if(in_count == 1) {
         set_r_duty_cycle(data);
     }
-    else if(in_count == 2){
+    else if(in_count == 2) {
         set_g_duty_cycle(data);
     }
-    else if(in_count == 3){
+    else if(in_count == 3) {
         set_b_duty_cycle(data);
     }
-    else{
+    else {
         out_message[in_count - 3] = data;
     }
 
     //send_bytes(&out_message_len, 1);
-    if(err_flag != 0)
-        in_count++;
+    //if(err_flag != 0)
+    in_count++;
 }
 
